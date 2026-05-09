@@ -3,267 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>集运运费估算器 · 启炎物流</title>
+<title>运费计算器 · 启炎物流</title>
 <style>
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#dceeff,#eaf4ff);min-height:100vh;padding:20px}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(30,90,180,.12);width:100%;max-width:560px;margin:0 auto;padding:32px 28px;max-width:580px}
+.brand{text-align:center;margin-bottom:24px}
+.brand-icon{display:inline-block;width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2264dc,#4d86f5);color:#fff;font-size:20px;line-height:48px;margin-bottom:8px;box-shadow:0 4px 14px rgba(34,100,220,.28)}
+.brand h1{font-size:20px;font-weight:700;color:#1a2a4a}
+.brand p{font-size:13px;color:#7a90b4;margin-top:4px}
+.section-label{font-size:12px;font-weight:600;color:#7a90b4;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;margin-top:20px}
+.section-label:first-of-type{margin-top:0}
 
-  body {
-    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-    background: linear-gradient(160deg, #dceeff 0%, #eaf4ff 60%, #f0f8ff 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+/* Country grid */
+.country-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:8px}
+.ctab{padding:9px 4px;border:2px solid #dde7f7;border-radius:10px;background:#f5f8ff;font-size:12px;font-weight:600;color:#4a5f8a;cursor:pointer;text-align:center;transition:all .18s}
+.ctab.active{border-color:#2264dc;background:#e8f0ff;color:#2264dc;box-shadow:0 0 0 3px rgba(34,100,220,.1)}
+.ctab:hover:not(.active){border-color:#a0b8e8;background:#eef3ff}
+.ctab.extra{border-color:#e0e8f8;background:#f8faff;color:#8aa0c0}
+.more-btn{font-size:11px;color:#7a90b4;cursor:pointer;text-align:center;padding:6px;border:1px dashed #c0d0e8;border-radius:8px;margin-top:6px;transition:all .15s;background:#f8faff}
+.more-btn:hover{background:#eef3ff;color:#4a5f8a}
 
-  .card {
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(30, 90, 180, 0.12), 0 2px 8px rgba(0,0,0,0.06);
-    width: 100%;
-    max-width: 480px;
-    padding: 36px 32px;
-    overflow: hidden;
-  }
+/* Channel pills */
+.channel-pills{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:8px 14px;border:2px solid #dde7f7;border-radius:20px;background:#f5f8ff;font-size:13px;font-weight:600;color:#4a5f8a;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px}
+.chip.active{border-color:#ff6600;background:#fff3e8;color:#ff6600;box-shadow:0 0 0 3px rgba(255,102,0,.1)}
+.chip:hover:not(.active){border-color:#a0b8e8}
+.chip.danger.active{border-color:#cc0000;background:#fff0f0;color:#cc0000;box-shadow:0 0 0 3px rgba(204,0,0,.1)}
+.chip-icon{font-size:15px}
 
-  .brand {
-    text-align: center;
-    margin-bottom: 28px;
-  }
+/* Input grid */
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:600;color:#3a5070}
+.field input,.field select{padding:11px 13px;border:2px solid #dde7f7;border-radius:10px;font-size:15px;color:#1a2a4a;background:#f8faff;outline:none;transition:border-color .18s,box-shadow .18s;width:100%}
+.field input:focus,.field select:focus{border-color:#2264dc;box-shadow:0 0 0 3px rgba(34,100,220,.1);background:#fff}
+.field input::placeholder{color:#a0b8cc}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a90b4' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.danger-notice{background:#fff5f5;border:1px solid #ffcccc;border-radius:8px;padding:8px 12px;font-size:12px;color:#cc0000;margin-bottom:12px;display:none}
+.danger-notice.show{display:block}
+.danger-notice strong{display:block;margin-bottom:2px}
 
-  .brand-icon {
-    display: inline-block;
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #2264dc, #4d86f5);
-    color: #fff;
-    font-size: 22px;
-    line-height: 52px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 14px rgba(34, 100, 220, 0.28);
-  }
+/* Weight mode badge */
+.weight-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:12px}
+.weight-badge.light{border:1px solid #ffd080;background:#fffbe6;color:#996600}
+.weight-badge.bulk{border:1px solid #80c8ff;background:#eaf5ff;color:#0066cc}
+#weightBadge{display:none}
+#weightBadge.show{display:inline-flex}
 
-  .brand h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a2a4a;
-    letter-spacing: 0.5px;
-  }
+/* Buttons */
+.calc-btn{width:100%;padding:14px;border:none;border-radius:13px;background:linear-gradient(135deg,#ff8c00,#ff6600);color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(255,102,0,.35);transition:transform .12s,box-shadow .12s;margin-top:6px}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,102,0,.45)}
+.calc-btn:active{transform:translateY(0)}
+.admin-btn{width:100%;padding:10px;border:2px dashed #c0d0e8;border-radius:13px;background:#f8faff;color:#7a90b4;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;transition:all .15s}
+.admin-btn:hover{background:#eef3ff;border-color:#a0b8e8;color:#4a5f8a}
 
-  .brand p {
-    font-size: 13px;
-    color: #7a90b4;
-    margin-top: 4px;
-  }
+/* Result */
+.result-box{margin-top:20px;background:linear-gradient(135deg,#e8f0ff,#f0f6ff);border:2px solid #c0d4f8;border-radius:14px;padding:18px;display:none}
+.result-box.show{display:block;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:9px 0}
+.rr:not(:last-child){border-bottom:1px dashed #b8cef8}
+.rr .lbl{font-size:13px;color:#4a5f8a;font-weight:500}
+.rr .val{font-size:16px;font-weight:700;color:#1a2a4a}
+.rr .val.big{font-size:20px;color:#ff6600}
+.rr .val.small{font-size:12px;color:#7a90b4;font-weight:400}
+.result-note{background:#fffbe6;border:1px solid #ffe080;border-radius:8px;padding:8px 12px;font-size:12px;color:#996600;margin-top:10px}
+.result-channel-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:8px}
+.result-channel-tag.air{border:1px solid #b0d0ff;background:#eaf5ff;color:#0066cc}
+.result-channel-tag.sea{border:1px solid #b0e0d0;background:#e8fff2;color:#008855}
+.result-channel-tag.truck{border:1px solid #e0d0b0;background:#fff8e0;color:#997700}
+.result-channel-tag.danger{border:1px solid #ffb0b0;background:#fff0f0;color:#cc0000}
 
-  .section-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #7a90b4;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
+/* Error */
+.error-msg{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:8px 12px;font-size:12px;color:#d94040;margin-top:8px;display:none}
+.error-msg.show{display:block}
 
-  /* --- Destination --- */
-  .destination-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-  }
+/* Footer */
+.footer{text-align:center;margin-top:18px;font-size:11px;color:#a0b8cc}
 
-  .dest-tab {
-    padding: 10px 6px;
-    border: 2px solid #dde7f7;
-    border-radius: 12px;
-    background: #f5f8ff;
-    font-size: 14px;
-    font-weight: 600;
-    color: #4a5f8a;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.18s;
-  }
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-content{background:#fff;border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:28px;position:relative;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#7a90b4;cursor:pointer;line-height:1}
+.modal-close:hover{color:#1a2a4a}
+.modal h2{font-size:18px;color:#1a2a4a;margin-bottom:6px}
+.modal p{font-size:12px;color:#7a90b4;margin-bottom:20px}
+.modal-tabs{display:flex;gap:6px;margin-bottom:20px}
+.mtab{padding:8px 16px;border:2px solid #dde7f7;border-radius:20px;background:#f5f8ff;font-size:13px;font-weight:600;color:#4a5f8a;cursor:pointer;transition:all .15s}
+.mtab.active{border-color:#2264dc;background:#e8f0ff;color:#2264dc}
+.mtab:hover:not(.active){border-color:#a0b8e8}
 
-  .dest-tab.active {
-    border-color: #2264dc;
-    background: #e8f0ff;
-    color: #2264dc;
-    box-shadow: 0 0 0 3px rgba(34,100,220,0.12);
-  }
+/* Admin table */
+.admin-table{width:100%;border-collapse:collapse;font-size:12px}
+.admin-table th{background:#f0f4ff;padding:10px 8px;text-align:left;font-weight:700;color:#3a5070;border-bottom:2px solid #d0dcf0;position:sticky;top:0}
+.admin-table td{padding:8px;vertical-align:middle;border-bottom:1px solid #eef3ff}
+.admin-table tr:hover td{background:#f8faff}
+.admin-table input{width:100%;padding:6px 8px;border:1px solid #dde7f7;border-radius:6px;font-size:12px;color:#1a2a4a;background:#f8faff;outline:none}
+.admin-table input:focus{border-color:#2264dc;background:#fff;box-shadow:0 0 0 2px rgba(34,100,220,.1)}
+.admin-table .ch-name{font-weight:700;color:#2264dc;font-size:13px}
+.admin-table .ch-sub{font-size:10px;color:#7a90b4;margin-top:2px}
+.admin-table .bulk-hint{font-size:10px;color:#0066cc;background:#eaf5ff;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.admin-table .first-hint{font-size:10px;color:#996600;background:#fffbe6;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.admin-section{margin-bottom:6px}
+.admin-section-hint{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#f0f4ff;border-radius:8px;font-size:11px;color:#3a5070;font-weight:600;margin-bottom:4px}
+.admin-section-hint .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.admin-section-hint .dot.air{background:#4d86f5}
+.admin-section-hint .dot.sea{background:#22c55e}
+.admin-section-hint .dot.truck{background:#f59e0b}
+.admin-section-hint .dot.danger{background:#ef4444}
+.hint-box{background:#f0f4ff;border-radius:8px;padding:10px 12px;font-size:11px;color:#3a5070;line-height:1.6;margin-bottom:16px}
+.hint-box code{background:#dde7f7;padding:1px 5px;border-radius:4px;font-size:11px}
 
-  .dest-tab:hover:not(.active) {
-    border-color: #a0b8e8;
-    background: #eef3ff;
-  }
+/* Country add */
+.country-add{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;margin-bottom:12px;align-items:end}
+.country-add input{width:100%;padding:8px 10px;border:2px solid #dde7f7;border-radius:8px;font-size:13px;outline:none}
+.country-add input:focus{border-color:#2264dc}
+.add-btn{padding:8px 14px;border:none;border-radius:8px;background:#2264dc;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.add-btn:hover{background:#1a50c0}
+.del-btn{padding:6px 8px;border:1px solid #ffcccc;border-radius:6px;background:#fff0f0;color:#cc0000;font-size:11px;cursor:pointer}
+.del-btn:hover{background:#ffe0e0}
+.country-del-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid #eef3ff}
+.country-del-row .cname{font-size:12px;color:#1a2a4a;font-weight:600}
 
-  /* --- Input Grid --- */
-  .input-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
+/* Pin screen */
+.pin-screen{text-align:center;padding:40px 20px}
+.pin-screen h2{font-size:20px;color:#1a2a4a;margin-bottom:8px}
+.pin-screen p{font-size:13px;color:#7a90b4;margin-bottom:24px}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #dde7f7;background:#fff;transition:all .15s}
+.pin-dot.filled{background:#2264dc;border-color:#2264dc}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto}
+.pin-key{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:none;border-radius:12px;background:#f0f4ff;font-size:20px;font-weight:600;color:#1a2a4a;cursor:pointer;transition:all .1s}
+.pin-key:hover{background:#e0e8f8}
+.pin-key:active{background:#d0d8e8;transform:scale(.95)}
+.pin-key.action{font-size:13px;color:#7a90b4}
+.pin-key.action:hover{color:#1a2a4a}
+.pin-error{color:#cc0000;font-size:12px;margin-top:10px;display:none}
+.pin-error.show{display:block}
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+/* Save buttons */
+.save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid #dde7f7;padding:12px 0;display:flex;gap:10px;margin-top:16px}
+.save-btn{flex:1;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#2264dc,#4d86f5);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,100,220,.3)}
+.save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(34,100,220,.4)}
+.reset-btn{flex:1;padding:12px;border:2px solid #dde7f7;border-radius:10px;background:#fff;color:#7a90b4;font-size:14px;font-weight:600;cursor:pointer}
+.reset-btn:hover{background:#f8faff;color:#4a5f8a}
+.saved-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a2a4a;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:1001;display:none;animation:fadeUp .3s ease}
+.saved-toast.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-  .field.full {
-    grid-column: 1 / -1;
-  }
+/* Divider */
+.divider{height:1px;background:linear-gradient(to right,transparent,#d0dcf0,transparent);margin:18px 0}
 
-  .field label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #3a5070;
-  }
-
-  .field input {
-    padding: 12px 14px;
-    border: 2px solid #dde7f7;
-    border-radius: 12px;
-    font-size: 16px;
-    color: #1a2a4a;
-    background: #f8faff;
-    outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s;
-    width: 100%;
-  }
-
-  .field input:focus {
-    border-color: #2264dc;
-    box-shadow: 0 0 0 3px rgba(34,100,220,0.12);
-    background: #fff;
-  }
-
-  .field input::placeholder {
-    color: #a0b8cc;
-  }
-
-  .divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, #d0dcf0, transparent);
-    margin: 20px 0;
-  }
-
-  /* --- Calculate Button --- */
-  .calc-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #ff8c00, #ff6600);
-    color: #fff;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(255, 102, 0, 0.35);
-    transition: transform 0.12s, box-shadow 0.12s;
-    margin-top: 4px;
-  }
-
-  .calc-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(255, 102, 0, 0.45);
-  }
-
-  .calc-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 14px rgba(255, 102, 0, 0.3);
-  }
-
-  /* --- Result --- */
-  .result-box {
-    margin-top: 24px;
-    background: linear-gradient(135deg, #e8f0ff, #f0f6ff);
-    border: 2px solid #c0d4f8;
-    border-radius: 16px;
-    padding: 20px;
-    display: none;
-  }
-
-  .result-box.show {
-    display: block;
-    animation: slideUp 0.3s ease;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .result-box .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-  }
-
-  .result-box .row:not(:last-child) {
-    border-bottom: 1px dashed #b8cef8;
-  }
-
-  .result-box .label {
-    font-size: 14px;
-    color: #4a5f8a;
-    font-weight: 500;
-  }
-
-  .result-box .value {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a2a4a;
-  }
-
-  .result-box .value.highlight {
-    color: #ff6600;
-    font-size: 22px;
-  }
-
-  .result-box .sub {
-    font-size: 12px;
-    color: #7a90b4;
-    font-weight: 400;
-  }
-
-  /* --- Error --- */
-  .error-msg {
-    background: #fff0f0;
-    border: 1px solid #ffcccc;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #d94040;
-    margin-top: 10px;
-    display: none;
-  }
-
-  .error-msg.show { display: block; }
-
-  /* --- Footer --- */
-  .footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 11px;
-    color: #a0b8cc;
-  }
-
-  /* Responsive */
-  @media (max-width: 420px) {
-    .card { padding: 28px 20px; border-radius: 16px; }
-    .input-group { grid-template-columns: 1fr 1fr; }
-  }
+/* Mobile */
+@media(max-width:480px){
+  .card{padding:24px 16px;border-radius:16px}
+  .country-grid{grid-template-columns:repeat(3,1fr)}
+  .input-row{grid-template-columns:1fr}
+  .modal-content{padding:20px 16px;border-radius:12px}
+}
 </style>
 </head>
 <body>
@@ -271,142 +172,735 @@
 <div class="card">
   <div class="brand">
     <div class="brand-icon">🚚</div>
-    <h1>集运运费估算器</h1>
-    <p>启炎物流 · 东莞国际集运</p>
+    <h1>国际集运运费计算器</h1>
+    <p>启炎物流 · 东莞集运</p>
   </div>
 
-  <!-- Destination -->
-  <div class="section-label">目的地</div>
-  <div class="destination-tabs">
-    <button class="dest-tab active" data-country="US">🇺🇸 美国</button>
-    <button class="dest-tab"        data-country="UK">🇬🇧 英国</button>
-    <button class="dest-tab"        data-country="JP">🇯🇵 日本</button>
+  <!-- Country selector -->
+  <div class="section-label">📍 目的地</div>
+  <div class="country-grid" id="countryGrid"></div>
+  <div class="more-btn" id="moreBtn" onclick="showAllCountries()">▼ 查看全部国家</div>
+
+  <!-- Channel selector -->
+  <div class="section-label">📦 发货渠道</div>
+  <div class="channel-pills">
+    <div class="chip active" data-channel="air" onclick="selectChannel('air')">
+      <span class="chip-icon">✈️</span> 空运
+    </div>
+    <div class="chip" data-channel="sea" onclick="selectChannel('sea')">
+      <span class="chip-icon">🚢</span> 海运
+    </div>
+    <div class="chip" data-channel="truck" onclick="selectChannel('truck')">
+      <span class="chip-icon">🚛</span> 卡航
+    </div>
+    <div class="chip danger" data-channel="tobacco" onclick="selectChannel('tobacco')">
+      <span class="chip-icon">🚬</span> 香烟/槟榔
+    </div>
+  </div>
+  <div class="danger-notice" id="dangerNotice">
+    <strong>⚠️ 特殊商品提示</strong>
+    本渠道仅限香烟、槟榔等特殊商品，系统会按独立渠道计费，不与普通货物混计。
   </div>
 
-  <!-- Package Info -->
-  <div class="section-label">包裹信息</div>
-  <div class="input-group">
+  <!-- Weight input -->
+  <div class="section-label">⚖️ 包裹重量</div>
+  <div class="input-row">
     <div class="field">
       <label>实际重量 (kg)</label>
       <input type="number" id="weight" placeholder="如 2.5" min="0" step="0.1">
     </div>
     <div class="field">
-      <label>长 (cm)</label>
-      <input type="number" id="length" placeholder="如 30" min="0" step="0.1">
-    </div>
-    <div class="field">
-      <label>宽 (cm)</label>
-      <input type="number" id="width" placeholder="如 20" min="0" step="0.1">
-    </div>
-    <div class="field">
-      <label>高 (cm)</label>
-      <input type="number" id="height" placeholder="如 15" min="0" step="0.1">
+      <label>长×宽×高 (cm)</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <input type="number" id="length" placeholder="长" min="0" step="0.1" style="font-size:14px">
+        <input type="number" id="width"  placeholder="宽" min="0" step="0.1" style="font-size:14px">
+        <input type="number" id="height" placeholder="高" min="0" step="0.1" style="font-size:14px">
+      </div>
     </div>
   </div>
 
-  <div class="divider"></div>
+  <!-- Weight mode badge -->
+  <div id="weightBadge">
+    <span class="weight-badge light" id="badgeLight">💡 &lt;10kg 首重+续重模式</span>
+    <span class="weight-badge bulk" id="badgeBulk">📦 ≥10kg 批量优惠价</span>
+  </div>
 
   <!-- Calculate -->
-  <button class="calc-btn" id="calcBtn">🔍 计算运费</button>
+  <button class="calc-btn" onclick="calc()">🔍 计算运费</button>
   <div class="error-msg" id="errorBox"></div>
 
   <!-- Result -->
   <div class="result-box" id="resultBox">
-    <div class="row">
-      <span class="label">📦 体积重</span>
-      <span class="value" id="volWeight">—</span>
+    <div class="rr">
+      <span class="lbl">📍 目的地</span>
+      <span class="val" id="rCountry">—</span>
     </div>
-    <div class="row">
-      <span class="label">⚖️ 计费重量</span>
-      <span class="value" id="billWeight">—</span>
+    <div class="rr">
+      <span class="lbl">📦 体积重</span>
+      <span class="val" id="rVol">—</span>
     </div>
-    <div class="row">
-      <span class="label">💰 预估运费</span>
-      <span class="value highlight" id="price">—</span>
+    <div class="rr">
+      <span class="lbl">⚖️ 计费重量</span>
+      <span class="val" id="rBill">—</span>
     </div>
-    <div class="row" style="border:none">
-      <span class="label">📍 目的地</span>
-      <span class="value" id="destLabel" style="font-size:14px">—</span>
+    <div class="rr">
+      <span class="lbl">💰 预估运费</span>
+      <span class="val big" id="rPrice">—</span>
     </div>
+    <div class="rr" id="rPriceRow" style="display:none">
+      <span class="lbl">　</span>
+      <span class="val small" id="rPriceDetail">—</span>
+    </div>
+    <div class="rr" style="border:none">
+      <span class="lbl">🚚 渠道</span>
+      <span id="rChannel">—</span>
+    </div>
+    <div class="result-note" id="rNote"></div>
   </div>
 
   <div class="footer">以上为估算价，最终费用以实际出账为准</div>
+
+  <div class="divider"></div>
+  <button class="admin-btn" onclick="openAdmin()">⚙️ 后台管理（修改价格）</button>
 </div>
 
+<!-- Admin PIN Modal -->
+<div class="modal" id="pinModal">
+  <div class="modal-content" style="max-width:360px">
+    <button class="modal-close" onclick="closeAdmin()">×</button>
+    <div class="pin-screen" id="pinScreen">
+      <h2>🔐 后台管理</h2>
+      <p>请输入管理密码</p>
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin-keypad" id="pinKeypad"></div>
+      <div class="pin-error" id="pinError">密码错误，请重试</div>
+    </div>
+    <div id="adminContent" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Save toast -->
+<div class="saved-toast" id="saveToast">✅ 价格已保存</div>
+
 <script>
-  // Country config
-  const PRICING = {
-    US: { base: 80, add: 20, unit: 0.5, label: '美国', flag: '🇺🇸' },
-    UK: { base: 90, add: 25, unit: 0.5, label: '英国', flag: '🇬🇧' },
-    JP: { base: 60, add: 15, unit: 0.5, label: '日本', flag: '🇯🇵' },
-  };
+// ═══════════════════════════════════════════════
+// DEFAULT PRICING DATA
+// ═══════════════════════════════════════════════
+const DEFAULT_DATA = {
+  adminPin: "8888",
+  volDiv: 6000,
+  countries: ["美国","英国","德国","法国","日本","韩国","澳大利亚","加拿大","新加坡","马来西亚","泰国","越南","印度尼西亚","菲律宾","荷兰","新西兰","意大利","西班牙","巴西","俄罗斯"],
+  channels: {
+    air:    { name:"空运",   icon:"✈️", color:"#4d86f5", weightLimit:70 },
+    sea:    { name:"海运",   icon:"🚢", color:"#22c55e", weightLimit:1000 },
+    truck:  { name:"卡航",   icon:"🚛", color:"#f59e0b", weightLimit:1000 },
+    tobacco:{ name:"香烟/槟榔",icon:"🚬", color:"#ef4444", weightLimit:10 }
+  },
+  // per-country pricing
+  // structure: country → channel → { first, firstUnit, add, addUnit, bulkMin, bulkPrice }
+  // 10kg以下: first + add*(weight-firstUnit)/addUnit
+  // 10kg以上: bulkPrice * weight
+  pricing: {
+    "美国": {
+      air:    { first:55, firstUnit:0.5, add:15, addUnit:0.5, bulkMin:10, bulkPrice:9.5 },
+      sea:    { first:30, firstUnit:1,   add:8,  addUnit:1,   bulkMin:10, bulkPrice:4.5 },
+      truck:  { first:28, firstUnit:1,   add:7,  addUnit:1,   bulkMin:10, bulkPrice:4.0 },
+      tobacco:{ first:120,firstUnit:0.5, add:30, addUnit:0.5, bulkMin:10, bulkPrice:25 }
+    },
+    "英国": {
+      air:    { first:60, firstUnit:0.5, add:16, addUnit:0.5, bulkMin:10, bulkPrice:10.5 },
+      sea:    { first:32, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.0 },
+      truck:  { first:30, firstUnit:1,   add:8,  addUnit:1,   bulkMin:10, bulkPrice:4.5 },
+      tobacco:{ first:130,firstUnit:0.5, add:32, addUnit:0.5, bulkMin:10, bulkPrice:27 }
+    },
+    "德国": {
+      air:    { first:62, firstUnit:0.5, add:17, addUnit:0.5, bulkMin:10, bulkPrice:11 },
+      sea:    { first:33, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.2 },
+      truck:  { first:31, firstUnit:1,   add:8,  addUnit:1,   bulkMin:10, bulkPrice:4.8 },
+      tobacco:{ first:135,firstUnit:0.5, add:33, addUnit:0.5, bulkMin:10, bulkPrice:28 }
+    },
+    "法国": {
+      air:    { first:62, firstUnit:0.5, add:17, addUnit:0.5, bulkMin:10, bulkPrice:11 },
+      sea:    { first:33, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.2 },
+      truck:  { first:31, firstUnit:1,   add:8,  addUnit:1,   bulkMin:10, bulkPrice:4.8 },
+      tobacco:{ first:135,firstUnit:0.5, add:33, addUnit:0.5, bulkMin:10, bulkPrice:28 }
+    },
+    "日本": {
+      air:    { first:38, firstUnit:0.5, add:10, addUnit:0.5, bulkMin:10, bulkPrice:7.0 },
+      sea:    { first:18, firstUnit:1,   add:5,  addUnit:1,   bulkMin:10, bulkPrice:3.0 },
+      truck:  { first:20, firstUnit:1,   add:5,  addUnit:1,   bulkMin:10, bulkPrice:3.5 },
+      tobacco:{ first:85, firstUnit:0.5, add:22, addUnit:0.5, bulkMin:10, bulkPrice:18 }
+    },
+    "韩国": {
+      air:    { first:35, firstUnit:0.5, add:9,  addUnit:0.5, bulkMin:10, bulkPrice:6.5 },
+      sea:    { first:16, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:2.8 },
+      truck:  { first:18, firstUnit:1,   add:5,  addUnit:1,   bulkMin:10, bulkPrice:3.2 },
+      tobacco:{ first:78, firstUnit:0.5, add:20, addUnit:0.5, bulkMin:10, bulkPrice:16 }
+    },
+    "澳大利亚": {
+      air:    { first:70, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:12 },
+      sea:    { first:38, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:5.8 },
+      truck:  { first:35, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.5 },
+      tobacco:{ first:150,firstUnit:0.5, add:38, addUnit:0.5, bulkMin:10, bulkPrice:30 }
+    },
+    "加拿大": {
+      air:    { first:68, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:12 },
+      sea:    { first:36, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:5.5 },
+      truck:  { first:34, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.2 },
+      tobacco:{ first:145,firstUnit:0.5, add:36, addUnit:0.5, bulkMin:10, bulkPrice:29 }
+    },
+    "新加坡": {
+      air:    { first:32, firstUnit:0.5, add:8,  addUnit:0.5, bulkMin:10, bulkPrice:5.5 },
+      sea:    { first:14, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:2.5 },
+      truck:  { first:16, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:2.8 },
+      tobacco:{ first:72, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:15 }
+    },
+    "马来西亚": {
+      air:    { first:30, firstUnit:0.5, add:8,  addUnit:0.5, bulkMin:10, bulkPrice:5.0 },
+      sea:    { first:13, firstUnit:1,   add:3.5,addUnit:1,  bulkMin:10, bulkPrice:2.3 },
+      truck:  { first:15, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:2.6 },
+      tobacco:{ first:68, firstUnit:0.5, add:17, addUnit:0.5, bulkMin:10, bulkPrice:14 }
+    },
+    "泰国": {
+      air:    { first:32, firstUnit:0.5, add:9,  addUnit:0.5, bulkMin:10, bulkPrice:5.8 },
+      sea:    { first:15, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:2.8 },
+      truck:  { first:17, firstUnit:1,   add:4.5,addUnit:1,  bulkMin:10, bulkPrice:3.0 },
+      tobacco:{ first:72, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:15 }
+    },
+    "越南": {
+      air:    { first:28, firstUnit:0.5, add:7,  addUnit:0.5, bulkMin:10, bulkPrice:4.8 },
+      sea:    { first:12, firstUnit:1,   add:3,  addUnit:1,   bulkMin:10, bulkPrice:2.0 },
+      truck:  { first:10, firstUnit:1,   add:3,  addUnit:1,   bulkMin:10, bulkPrice:1.8 },
+      tobacco:{ first:62, firstUnit:0.5, add:15, addUnit:0.5, bulkMin:10, bulkPrice:13 }
+    },
+    "印度尼西亚": {
+      air:    { first:38, firstUnit:0.5, add:10, addUnit:0.5, bulkMin:10, bulkPrice:7.5 },
+      sea:    { first:18, firstUnit:1,   add:5,  addUnit:1,   bulkMin:10, bulkPrice:3.5 },
+      truck:  { first:20, firstUnit:1,   add:5,  addUnit:1,   bulkMin:10, bulkPrice:3.8 },
+      tobacco:{ first:85, firstUnit:0.5, add:22, addUnit:0.5, bulkMin:10, bulkPrice:18 }
+    },
+    "菲律宾": {
+      air:    { first:35, firstUnit:0.5, add:9,  addUnit:0.5, bulkMin:10, bulkPrice:6.5 },
+      sea:    { first:16, firstUnit:1,   add:4,  addUnit:1,   bulkMin:10, bulkPrice:3.0 },
+      truck:  { first:18, firstUnit:1,   add:4.5,addUnit:1,  bulkMin:10, bulkPrice:3.2 },
+      tobacco:{ first:78, firstUnit:0.5, add:20, addUnit:0.5, bulkMin:10, bulkPrice:16 }
+    },
+    "荷兰": {
+      air:    { first:64, firstUnit:0.5, add:17, addUnit:0.5, bulkMin:10, bulkPrice:11.5 },
+      sea:    { first:34, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.5 },
+      truck:  { first:32, firstUnit:1,   add:8,  addUnit:1,   bulkMin:10, bulkPrice:5.0 },
+      tobacco:{ first:138,firstUnit:0.5, add:35, addUnit:0.5, bulkMin:10, bulkPrice:28 }
+    },
+    "新西兰": {
+      air:    { first:72, firstUnit:0.5, add:19, addUnit:0.5, bulkMin:10, bulkPrice:13 },
+      sea:    { first:40, firstUnit:1,   add:11, addUnit:1,   bulkMin:10, bulkPrice:6.2 },
+      truck:  { first:38, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:5.8 },
+      tobacco:{ first:155,firstUnit:0.5, add:40, addUnit:0.5, bulkMin:10, bulkPrice:32 }
+    },
+    "意大利": {
+      air:    { first:66, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:12 },
+      sea:    { first:35, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:5.8 },
+      truck:  { first:33, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.5 },
+      tobacco:{ first:142,firstUnit:0.5, add:36, addUnit:0.5, bulkMin:10, bulkPrice:29 }
+    },
+    "西班牙": {
+      air:    { first:66, firstUnit:0.5, add:18, addUnit:0.5, bulkMin:10, bulkPrice:12 },
+      sea:    { first:35, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:5.8 },
+      truck:  { first:33, firstUnit:1,   add:9,  addUnit:1,   bulkMin:10, bulkPrice:5.5 },
+      tobacco:{ first:142,firstUnit:0.5, add:36, addUnit:0.5, bulkMin:10, bulkPrice:29 }
+    },
+    "巴西": {
+      air:    { first:80, firstUnit:0.5, add:22, addUnit:0.5, bulkMin:10, bulkPrice:15 },
+      sea:    { first:45, firstUnit:1,   add:12, addUnit:1,   bulkMin:10, bulkPrice:7.5 },
+      truck:  { first:42, firstUnit:1,   add:11, addUnit:1,   bulkMin:10, bulkPrice:7.0 },
+      tobacco:{ first:175,firstUnit:0.5, add:45, addUnit:0.5, bulkMin:10, bulkPrice:35 }
+    },
+    "俄罗斯": {
+      air:    { first:75, firstUnit:0.5, add:20, addUnit:0.5, bulkMin:10, bulkPrice:14 },
+      sea:    { first:40, firstUnit:1,   add:11, addUnit:1,   bulkMin:10, bulkPrice:6.8 },
+      truck:  { first:36, firstUnit:1,   add:10, addUnit:1,   bulkMin:10, bulkPrice:6.2 },
+      tobacco:{ first:160,firstUnit:0.5, add:42, addUnit:0.5, bulkMin:10, bulkPrice:33 }
+    }
+  }
+};
 
-  let selectedCountry = 'US';
+// Country flags (emoji)
+const FLAGS = {
+  "美国":"🇺🇸","英国":"🇬🇧","德国":"🇩🇪","法国":"🇫🇷","日本":"🇯🇵","韩国":"🇰🇷","澳大利亚":"🇦🇺","加拿大":"🇨🇦",
+  "新加坡":"🇸🇬","马来西亚":"🇲🇾","泰国":"🇹🇭","越南":"🇻🇳","印度尼西亚":"🇮🇩","菲律宾":"🇵🇭","荷兰":"🇳🇱",
+  "新西兰":"🇳🇿","意大利":"🇮🇹","西班牙":"🇪🇸","巴西":"🇧🇷","俄罗斯":"🇷🇺"
+};
 
-  // Tab switching
-  document.querySelectorAll('.dest-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.dest-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      selectedCountry = tab.dataset.country;
-      // Auto recalc if result is shown
-      const res = document.getElementById('resultBox');
-      if (res.classList.contains('show')) calc();
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let selectedCountry = "美国";
+let selectedChannel = "air";
+let allCountriesShown = false;
+let pendingPin = "";
+let adminMode = false; // track if admin already unlocked
+
+// Load saved data
+try {
+  const saved = localStorage.getItem("freightCalcConfig");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // deep merge
+    data.countries = parsed.countries || data.countries;
+    data.pricing = parsed.pricing || data.pricing;
+    if (parsed.adminPin) data.adminPin = parsed.adminPin;
+    if (parsed.volDiv) data.volDiv = parsed.volDiv;
+  }
+} catch(e) {}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function initCountryGrid() {
+  const grid = document.getElementById("countryGrid");
+  const all = data.countries;
+  const shown = all.slice(0, 8);
+  const extra = all.slice(8);
+
+  let html = "";
+  shown.forEach(c => {
+    html += `<button class="ctab${c === selectedCountry ? ' active' : ''}" data-country="${c}" onclick="selectCountry('${c}')">${FLAGS[c] || '🌐'} ${c}</button>`;
+  });
+  extra.forEach(c => {
+    html += `<button class="ctab extra" style="display:none" data-country="${c}" onclick="selectCountry('${c}')">${FLAGS[c] || '🌐'} ${c}</button>`;
+  });
+  grid.innerHTML = html;
+
+  // Update more btn
+  const moreBtn = document.getElementById("moreBtn");
+  if (extra.length === 0) moreBtn.style.display = "none";
+  else {
+    moreBtn.style.display = "block";
+    moreBtn.textContent = "▼ 查看全部" + extra.length + "个国家";
+  }
+}
+
+function showAllCountries() {
+  const grid = document.getElementById("countryGrid");
+  const extraBtns = grid.querySelectorAll(".ctab.extra");
+  const btn = document.getElementById("moreBtn");
+  if (!allCountriesShown) {
+    extraBtns.forEach(b => b.style.display = "block");
+    btn.textContent = "▲ 收起";
+    allCountriesShown = true;
+  } else {
+    extraBtns.forEach(b => b.style.display = "none");
+    btn.textContent = "▼ 查看全部" + extraBtns.length + "个国家";
+    allCountriesShown = false;
+  }
+}
+
+function selectCountry(name) {
+  selectedCountry = name;
+  document.querySelectorAll(".ctab").forEach(b => {
+    b.classList.toggle("active", b.dataset.country === name);
+  });
+  // Clear result when country changes
+  document.getElementById("resultBox").classList.remove("show");
+  updateChannelWeightLimit();
+}
+
+function selectChannel(ch) {
+  selectedChannel = ch;
+  document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+  document.querySelector(`.chip[data-channel="${ch}"]`).classList.add("active");
+  // Show/hide danger notice
+  const notice = document.getElementById("dangerNotice");
+  notice.classList.toggle("show", ch === "tobacco");
+  updateChannelWeightLimit();
+  document.getElementById("resultBox").classList.remove("show");
+}
+
+function updateChannelWeightLimit() {
+  const ch = selectedChannel;
+  const limit = data.channels[ch] ? data.channels[ch].weightLimit : 70;
+  const wInput = document.getElementById("weight");
+  wInput.max = limit;
+  const hint = wInput.parentElement.querySelector(".limit-hint");
+  if (hint) hint.remove();
+  if (limit < 1000) {
+    const span = document.createElement("span");
+    span.className = "limit-hint";
+    span.style.cssText = "font-size:10px;color:#7a90b4;margin-top:3px";
+    span.textContent = "上限 " + limit + "kg";
+    wInput.parentElement.appendChild(span);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// CALCULATION
+// ═══════════════════════════════════════════════
+function calc() {
+  const w   = parseFloat(document.getElementById("weight").value);
+  const l   = parseFloat(document.getElementById("length").value);
+  const wd  = parseFloat(document.getElementById("width").value);
+  const h   = parseFloat(document.getElementById("height").value);
+  const err = document.getElementById("errorBox");
+  const res = document.getElementById("resultBox");
+
+  err.classList.remove("show");
+  err.textContent = "";
+  res.classList.remove("show");
+
+  if (isNaN(w) || w <= 0) { showErr("请输入正确的实际重量"); return; }
+  if (isNaN(l) || l <= 0 || isNaN(wd) || wd <= 0 || isNaN(h) || h <= 0) {
+    showErr("请输入正确的长宽高尺寸"); return;
+  }
+
+  const limit = data.channels[selectedChannel].weightLimit;
+  if (w > limit) { showErr(selectedChannel === "tobacco" ? "香烟/槟榔渠道上限 " + limit + "kg，请分批发货" : "该渠道最大重量 " + limit + "kg"); return; }
+
+  const volDiv = data.volDiv || 6000;
+  const volWeight = (l * wd * h) / volDiv;
+  const billWeight = Math.max(w, volWeight);
+
+  const cfg = data.pricing[selectedCountry] && data.pricing[selectedCountry][selectedChannel];
+  if (!cfg) { showErr("该渠道未配置价格，请到后台添加"); return; }
+
+  let price, detail;
+  if (billWeight < cfg.bulkMin) {
+    // First weight + continuous weight
+    const firstUnits = cfg.firstUnit || 0.5;
+    const addUnits = cfg.addUnit || 0.5;
+    const units = Math.ceil((billWeight - firstUnits) / addUnits);
+    price = cfg.first + Math.max(0, units) * cfg.add;
+    detail = `首重${cfg.firstUnit}kg ¥${cfg.first} + ${Math.max(0,units)}×${cfg.addUnit}kg ¥${cfg.add}`;
+  } else {
+    // Bulk price
+    price = cfg.bulkPrice * billWeight;
+    detail = `批量价 ${cfg.bulkPrice}元/kg × ${billWeight.toFixed(2)}kg`;
+  }
+  price = Math.ceil(price);
+
+  // Channel tag
+  const chData = data.channels[selectedChannel];
+  const chClass = selectedChannel === "sea" ? "sea" : selectedChannel === "truck" ? "truck" : selectedChannel === "tobacco" ? "danger" : "air";
+
+  document.getElementById("rCountry").textContent = (FLAGS[selectedCountry] || "🌐") + " " + selectedCountry;
+  document.getElementById("rVol").textContent = volWeight.toFixed(2) + " kg";
+  document.getElementById("rBill").textContent = billWeight.toFixed(2) + " kg";
+  document.getElementById("rPrice").textContent = "¥" + price + " 元";
+  document.getElementById("rPriceDetail").textContent = detail;
+  document.getElementById("rPriceRow").style.display = detail ? "" : "none";
+
+  const channelTag = document.createElement("span");
+  channelTag.className = "result-channel-tag " + chClass;
+  channelTag.textContent = chData.icon + " " + chData.name;
+  const channelCell = document.getElementById("rChannel");
+  channelCell.innerHTML = "";
+  channelCell.appendChild(channelTag);
+
+  // Weight badge
+  const badge = document.getElementById("weightBadge");
+  badge.classList.add("show");
+  const isBulk = billWeight >= cfg.bulkMin;
+  document.getElementById("badgeLight").style.display = isBulk ? "none" : "inline-flex";
+  document.getElementById("badgeBulk").style.display = isBulk ? "inline-flex" : "none";
+
+  // Notes
+  let note = "";
+  if (selectedChannel === "sea" && billWeight >= cfg.bulkMin) note = "📌 海运批量价格已生效，重量越大越优惠";
+  else if (selectedChannel === "sea") note = "📌 海运时效较慢（15-30天），价格最优惠";
+  else if (selectedChannel === "truck") note = "📌 卡航途经中亚公路，时效约18-25天，性价比高";
+  else if (selectedChannel === "tobacco") note = "🚬 香烟/槟榔需提供购买凭证，特殊申报渠道";
+  else if (billWeight >= cfg.bulkMin) note = "📌 已触发批量优惠价，继续增加重量更划算！";
+  document.getElementById("rNote").textContent = note;
+
+  res.classList.add("show");
+}
+
+function showErr(msg) {
+  const err = document.getElementById("errorBox");
+  err.textContent = msg;
+  err.classList.add("show");
+}
+
+// Enter key
+document.addEventListener("DOMContentLoaded", () => {
+  initCountryGrid();
+  document.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("keypress", e => { if (e.key === "Enter") calc(); });
+  });
+  buildPinKeypad();
+  // Ensure default country is selected
+  selectCountry(selectedCountry);
+});
+
+// ═══════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════
+function openAdmin() {
+  document.getElementById("pinModal").classList.add("open");
+  document.getElementById("pinScreen").style.display = "block";
+  document.getElementById("adminContent").style.display = "none";
+  pendingPin = "";
+  updatePinDots();
+  document.getElementById("pinError").classList.remove("show");
+}
+
+function closeAdmin() {
+  document.getElementById("pinModal").classList.remove("open");
+  adminMode = false;
+}
+
+function buildPinKeypad() {
+  const keypad = document.getElementById("pinKeypad");
+  keypad.innerHTML = "";
+  const keys = ["1","2","3","4","5","6","7","8","9","C","0","⌫"];
+  keys.forEach(k => {
+    const btn = document.createElement("button");
+    btn.className = "pin-key" + (k === "C" || k === "⌫" ? " action" : "");
+    btn.textContent = k;
+    btn.onclick = () => onPinKey(k);
+    keypad.appendChild(btn);
+  });
+}
+
+function onPinKey(k) {
+  const err = document.getElementById("pinError");
+  err.classList.remove("show");
+  if (k === "C") { pendingPin = ""; }
+  else if (k === "⌫") { pendingPin = pendingPin.slice(0, -1); }
+  else if (pendingPin.length < 4) { pendingPin += k; }
+  updatePinDots();
+  if (pendingPin.length === 4) {
+    setTimeout(() => {
+      if (pendingPin === data.adminPin) {
+        document.getElementById("pinScreen").style.display = "none";
+        showAdminPanel();
+      } else {
+        err.classList.add("show");
+        pendingPin = "";
+        updatePinDots();
+      }
+    }, 100);
+  }
+}
+
+function updatePinDots() {
+  document.querySelectorAll(".pin-dot").forEach((d, i) => {
+    d.classList.toggle("filled", i < pendingPin.length);
+  });
+}
+
+function showAdminPanel() {
+  adminMode = true;
+  const content = document.getElementById("adminContent");
+  content.style.display = "block";
+  content.innerHTML = `
+    <button class="modal-close" onclick="closeAdmin()">×</button>
+    <h2>⚙️ 价格后台管理</h2>
+    <p>修改价格后点击「保存」，刷新页面即可生效</p>
+
+    <div class="hint-box">
+      <b>计费说明：</b><br>
+      <code>10kg以下</code>：首重费 + 续重费×续重单位数<br>
+      <code>≥10kg</code>：批量价(元/kg) × 计费重量<br>
+      首重单位、续重单位可自由设置（如 0.5kg 或 1kg）
+    </div>
+
+    <div class="modal-tabs">
+      <div class="mtab active" onclick="showAdminTab('pricing')">💰 价格配置</div>
+      <div class="mtab" onclick="showAdminTab('countries')">🌐 国家管理</div>
+      <div class="mtab" onclick="showAdminTab('pin')">🔑 修改密码</div>
+    </div>
+
+    <div id="adminPricing"></div>
+    <div id="adminCountries" style="display:none"></div>
+    <div id="adminPin" style="display:none"></div>
+
+    <div class="save-bar">
+      <button class="reset-btn" onclick="resetToDefault()">↩️ 恢复默认</button>
+      <button class="save-btn" onclick="saveConfig()">💾 保存配置</button>
+    </div>
+  `;
+  renderPricingTable();
+  renderCountryManager();
+  renderPinChanger();
+}
+
+function showAdminTab(tab) {
+  document.querySelectorAll(".mtab").forEach((t, i) => {
+    t.classList.toggle("active", ["pricing","countries","pin"][i] === tab);
+  });
+  document.getElementById("adminPricing").style.display   = tab === "pricing" ? "" : "none";
+  document.getElementById("adminCountries").style.display = tab === "countries" ? "" : "none";
+  document.getElementById("adminPin").style.display        = tab === "pin" ? "" : "none";
+}
+
+function renderPricingTable() {
+  const container = document.getElementById("adminPricing");
+  const channels = ["air","sea","truck","tobacco"];
+  const chNames = {air:"✈️ 空运", sea:"🚢 海运", truck:"🚛 卡航", tobacco:"🚬 香烟/槟榔"};
+  const chColors = {air:"air", sea:"sea", truck:"truck", tobacco:"danger"};
+
+  let html = `<div class="admin-section-hint"><div class="dot air"></div>✈️ 空运 — 最快时效，适合轻小件</div>`;
+  html += buildChannelTable("air", "空运");
+  html += `<div style="margin-top:20px"><div class="admin-section-hint"><div class="dot sea"></div>🚢 海运 — 最便宜，适合大货</div>`;
+  html += buildChannelTable("sea", "海运");
+  html += `</div><div style="margin-top:20px"><div class="admin-section-hint"><div class="dot truck"></div>🚛 卡航 — 陆运铁路，性价比高</div>`;
+  html += buildChannelTable("truck", "卡航");
+  html += `</div><div style="margin-top:20px"><div class="admin-section-hint"><div class="dot danger"></div>🚬 香烟/槟榔 — 特殊商品独立计费</div>`;
+  html += buildChannelTable("tobacco", "香烟/槟榔");
+  html += "</div>";
+  container.innerHTML = html;
+}
+
+function buildChannelTable(channel, label) {
+  let html = `<table class="admin-table">
+    <thead>
+      <tr>
+        <th style="width:90px">国家</th>
+        <th>首重(元)<div class="first-hint">0.5kg单位</div></th>
+        <th>续重(元)<div class="first-hint">每+0.5kg</div></th>
+        <th>批量价(元/kg)<div class="bulk-hint">≥10kg</div></th>
+      </tr>
+    </thead><tbody>`;
+  data.countries.forEach(c => {
+    const p = (data.pricing[c] && data.pricing[c][channel]) ? data.pricing[c][channel] : {first:0,add:0,bulkPrice:0};
+    const id = (c+"_"+channel).replace(/\s/g,"_");
+    html += `<tr>
+      <td><span style="font-size:15px">${FLAGS[c]||'🌐'}</span> ${c}</td>
+      <td><input type="number" step="0.5" id="${id}_first" value="${p.first||0}" placeholder="0"></td>
+      <td><input type="number" step="0.5" id="${id}_add" value="${p.add||0}" placeholder="0"></td>
+      <td><input type="number" step="0.1" id="${id}_bulk" value="${p.bulkPrice||0}" placeholder="0"></td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  return html;
+}
+
+function renderCountryManager() {
+  const container = document.getElementById("adminCountries");
+  let html = `
+    <div class="country-add">
+      <input type="text" id="newCountryName" placeholder="输入国家名称，如 哈萨克斯坦">
+      <input type="text" id="newCountryFlag" placeholder="国旗 emoji" style="max-width:60px" value="🌐">
+      <button class="add-btn" onclick="addCountry()">添加</button>
+    </div>
+    <div style="font-size:11px;color:#7a90b4;margin-bottom:10px">注意：添加新国家后，需到「价格配置」中为该国家设置各渠道价格</div>
+  `;
+  data.countries.forEach((c, i) => {
+    html += `<div class="country-del-row">
+      <span style="font-size:15px">${FLAGS[c]||'🌐'}</span>
+      <span class="cname">${c}</span>
+      <button class="del-btn" onclick="delCountry(${i})" style="margin-left:auto">删除</button>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderPinChanger() {
+  const container = document.getElementById("adminPin");
+  container.innerHTML = `
+    <div style="background:#f0f4ff;border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:13px;color:#3a5070;font-weight:600;margin-bottom:10px">当前密码</div>
+      <div style="font-size:20px;letter-spacing:4px;color:#2264dc;font-family:monospace">${"●".repeat(data.adminPin.length)}</div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label>新密码（4位数字）</label>
+      <input type="password" id="newPin1" maxlength="4" placeholder="输入新密码">
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label>确认新密码</label>
+      <input type="password" id="newPin2" maxlength="4" placeholder="再输入一次">
+    </div>
+    <button class="add-btn" style="width:100%;padding:12px" onclick="changePin()">确认修改密码</button>
+    <div id="pinChangeMsg" style="font-size:12px;margin-top:8px"></div>
+  `;
+}
+
+function addCountry() {
+  const name = document.getElementById("newCountryName").value.trim();
+  if (!name) return;
+  if (data.countries.includes(name)) { alert("该国家已存在"); return; }
+  data.countries.push(name);
+  FLAGS[name] = document.getElementById("newCountryFlag").value.trim() || "🌐";
+  // Copy first country pricing as template
+  const template = Object.keys(data.pricing)[0];
+  if (template) {
+    if (!data.pricing[name]) data.pricing[name] = JSON.parse(JSON.stringify(data.pricing[template]));
+  }
+  renderCountryManager();
+  renderPricingTable();
+  initCountryGrid();
+  document.getElementById("newCountryName").value = "";
+}
+
+function delCountry(idx) {
+  if (!confirm("删除 " + data.countries[idx] + "？该国价格数据也会删除")) return;
+  const name = data.countries[idx];
+  delete data.pricing[name];
+  data.countries.splice(idx, 1);
+  renderCountryManager();
+  renderPricingTable();
+  initCountryGrid();
+  if (selectedCountry === name) selectCountry(data.countries[0] || "美国");
+}
+
+function changePin() {
+  const p1 = document.getElementById("newPin1").value;
+  const p2 = document.getElementById("newPin2").value;
+  const msg = document.getElementById("pinChangeMsg");
+  if (!/^\d{4}$/.test(p1)) { msg.style.color="#cc0000"; msg.textContent="密码必须为4位数字"; return; }
+  if (p1 !== p2) { msg.style.color="#cc0000"; msg.textContent="两次输入不一致"; return; }
+  data.adminPin = p1;
+  msg.style.color="#008800"; msg.textContent="✅ 密码已修改";
+}
+
+function saveConfig() {
+  // Collect all pricing from table
+  data.countries.forEach(c => {
+    ["air","sea","truck","tobacco"].forEach(ch => {
+      const id = (c+"_"+ch).replace(/\s/g,"_");
+      const firstEl = document.getElementById(id+"_first");
+      const addEl   = document.getElementById(id+"_add");
+      const bulkEl  = document.getElementById(id+"_bulk");
+      if (firstEl && addEl && bulkEl) {
+        if (!data.pricing[c]) data.pricing[c] = {};
+        data.pricing[c][ch] = {
+          first:     parseFloat(firstEl.value) || 0,
+          add:       parseFloat(addEl.value)   || 0,
+          bulkMin:   10,
+          bulkPrice: parseFloat(bulkEl.value)   || 0
+        };
+      }
     });
   });
 
-  // Calculate
-  function calc() {
-    const w   = parseFloat(document.getElementById('weight').value);
-    const l   = parseFloat(document.getElementById('length').value);
-    const wd  = parseFloat(document.getElementById('width').value);
-    const h   = parseFloat(document.getElementById('height').value);
-    const err = document.getElementById('errorBox');
-    const res = document.getElementById('resultBox');
+  localStorage.setItem("freightCalcConfig", JSON.stringify(data));
+  const toast = document.getElementById("saveToast");
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2000);
+  // Refresh grid after save
+  initCountryGrid();
+  document.getElementById("resultBox").classList.remove("show");
+}
 
-    err.classList.remove('show');
-    err.textContent = '';
-
-    // Validation
-    if (isNaN(w) || w <= 0) { showErr('请输入正确的实际重量'); return; }
-    if (isNaN(l) || l <= 0) { showErr('请输入正确的长度'); return; }
-    if (isNaN(wd) || wd <= 0) { showErr('请输入正确的宽度'); return; }
-    if (isNaN(h) || h <= 0) { showErr('请输入正确的高度'); return; }
-
-    // Volumetric weight
-    const volWeight = (l * wd * h) / 6000;
-    const billWeight = Math.max(w, volWeight);
-
-    // Pricing
-    const cfg = PRICING[selectedCountry];
-    const units = billWeight / cfg.unit;
-    const price = cfg.base + Math.max(0, units - 1) * cfg.add;
-
-    // Render
-    document.getElementById('volWeight').textContent = volWeight.toFixed(2) + ' kg';
-    document.getElementById('billWeight').textContent = billWeight.toFixed(2) + ' kg';
-    document.getElementById('price').textContent = '¥' + price.toFixed(0) + ' 元';
-    document.getElementById('destLabel').textContent = cfg.flag + ' ' + cfg.label;
-
-    res.classList.add('show');
-  }
-
-  function showErr(msg) {
-    const err = document.getElementById('errorBox');
-    err.textContent = msg;
-    err.classList.add('show');
-    document.getElementById('resultBox').classList.remove('show');
-  }
-
-  document.getElementById('calcBtn').addEventListener('click', calc);
-
-  // Enter key support
-  document.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('keypress', e => {
-      if (e.key === 'Enter') calc();
-    });
-  });
+function resetToDefault() {
+  if (!confirm("确定恢复所有默认价格？当前修改将被清除")) return;
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  localStorage.removeItem("freightCalcConfig");
+  renderPricingTable();
+  renderCountryManager();
+  initCountryGrid();
+  document.getElementById("resultBox").classList.remove("show");
+  const toast = document.getElementById("saveToast");
+  toast.textContent = "↩️ 已恢复默认";
+  toast.classList.add("show");
+  setTimeout(() => { toast.classList.remove("show"); toast.textContent = "✅ 价格已保存"; }, 2000);
+}
 </script>
-
 </body>
 </html>
