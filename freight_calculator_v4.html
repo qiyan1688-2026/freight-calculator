@@ -301,14 +301,14 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gr
     <div class="input-row">
       <div class="field">
         <label>实际重量 (kg)</label>
-        <input type="number" id="weight" placeholder="如 2.5" min="0" step="0.1">
+        <input type="number" id="weight" placeholder="如 2.5" min="0" step="0.1" value="1">
       </div>
       <div class="field">
         <label>长×宽×高 (cm)</label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-          <input type="number" id="length" placeholder="长" min="0" step="0.1" style="font-size:14px">
-          <input type="number" id="width"  placeholder="宽" min="0" step="0.1" style="font-size:14px">
-          <input type="number" id="height" placeholder="高" min="0" step="0.1" style="font-size:14px">
+          <input type="number" id="length" placeholder="长" min="0" step="0.1" style="font-size:14px" value="1">
+          <input type="number" id="width"  placeholder="宽" min="0" step="0.1" style="font-size:14px" value="1">
+          <input type="number" id="height" placeholder="高" min="0" step="0.1" style="font-size:14px" value="1">
         </div>
       </div>
     </div>
@@ -954,5 +954,51 @@ function resetToDefault() {
   setTimeout(() => { toast.classList.remove("show"); toast.textContent = "✅ 配置已保存"; }, 2000);
 }
 </script>
+
+<!-- 微信联系方式 -->
+<div style="text-align:center;margin-top:30px;padding:20px;border-top:2px solid #eee;">
+  <h3 style="color:#333;margin-bottom:15px;">加我微信，获取更多物流资讯</h3>
+  <img src="启炎微信.jpg" alt="WeChat" style="max-width:200px;height:auto;border:1px solid #ddd;border-radius:8px;">
+  <p style="color:#666;margin-top:10px;font-size:14px;">扫码加我，随时咨询国际物流/集运问题</p>
+</div>
+
+
+<script>
+// 根据标签页选择切换渠道可用性
+function toggleImportChannels() {
+  const isImport = document.querySelector('.tab.active').textContent.includes('进口');
+  const channelInputs = document.querySelectorAll('input[name="channel"]');
+  
+  channelInputs.forEach(input => {
+    if (isImport) {
+      // 进口时禁用除空运外的所有渠道
+      if (!input.value.includes('import_air')) {
+        input.disabled = true;
+      } else {
+        input.disabled = false;
+        input.checked = true; // 自动选择进口空运
+      }
+    } else {
+      // 出口时启用所有渠道
+      input.disabled = false;
+    }
+  });
+}
+
+// 修改标签页点击事件以调用toggleImportChannels
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      // 等待标签页切换完成
+      setTimeout(toggleImportChannels, 0);
+    });
+  });
+  
+  // 初始检查，防止进口标签页默认选中
+  toggleImportChannels();
+});
+</script>
+
 </body>
 </html>
