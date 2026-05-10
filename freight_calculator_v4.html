@@ -444,6 +444,9 @@ function setDirection(dir) {
   currentDirection = dir;
   document.querySelectorAll('.dir-btn').forEach(b => b.classList.toggle('active', b.dataset.dir === dir));
   document.getElementById("resultBox").classList.remove("show");
+
+  // 切换方向时更新渠道可用状态
+  toggleImportChannels();
 }
 
 // ═══════════════════════════════════════════════
@@ -966,21 +969,42 @@ function resetToDefault() {
 <script>
 // 根据标签页选择切换渠道可用性
 function toggleImportChannels() {
-  const isImport = document.querySelector('.tab.active').textContent.includes('进口');
-  const channelInputs = document.querySelectorAll('input[name="channel"]');
-  
-  channelInputs.forEach(input => {
+  // 使用全局变量currentDirection判断方向
+  const isImport = (typeof currentDirection !== 'undefined' && currentDirection === 'import');
+
+  // 获取所有渠道chip元素
+  const channelChips = document.querySelectorAll('.chip[data-channel]');
+
+  channelChips.forEach(chip => {
+    const channel = chip.getAttribute('data-channel');
+
     if (isImport) {
-      // 进口时禁用除空运外的所有渠道
-      if (!input.value.includes('import_air')) {
-        input.disabled = true;
+      // 进口时只允许进口空运(import_air)渠道
+      if (channel === 'import_air') {
+        chip.classList.remove('disabled');
+        chip.style.opacity = '1';
+        chip.style.pointerEvents = 'auto';
+        // 自动选择进口空运
+        if (typeof selectChannel === 'function') {
+          selectChannel('import_air');
+        }
       } else {
-        input.disabled = false;
-        input.checked = true; // 自动选择进口空运
+        // 禁用其他所有渠道
+        chip.classList.add('disabled');
+        chip.style.opacity = '0.4';
+        chip.style.pointerEvents = 'none';
       }
     } else {
-      // 出口时启用所有渠道
-      input.disabled = false;
+      // 出口时启用所有渠道（除进口空运）
+      if (channel === 'import_air') {
+        chip.classList.add('disabled');
+        chip.style.opacity = '0.4';
+        chip.style.pointerEvents = 'none';
+      } else {
+        chip.classList.remove('disabled');
+        chip.style.opacity = '1';
+        chip.style.pointerEvents = 'auto';
+      }
     }
   });
 }
